@@ -28,5 +28,9 @@ Route.post('/login', 'AuthController.login')
 Route.post('/signup', 'AuthController.register')
 
 Route.group(()=> {
+  Route.get('/users', 'UsersController.index')
+  Route.get('/users/:id', 'UsersController.show')
+  Route.patch('/users/:id', 'UsersController.update')
+  Route.delete('/users/:id', 'UsersController.destroy')
 
-}).prefix('/api').middleware("auth")
+}).prefix('/v1').middleware("auth")

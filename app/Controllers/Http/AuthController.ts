@@ -2,44 +2,44 @@
 
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
 import LoginRequest from "App/Validators/LoginRequestValidator";
-import CreateUserRequest from "App/Validators/CreateUserRequestValidator";
+import UserRequest from "App/Validators/UserRequestValidator";
 import User from "App/Models/User";
 import Hash from "@ioc:Adonis/Core/Hash";
 
 export default class AuthController {
-  public async register(ctx: HttpContextContract){
+  public async register({request, response}: HttpContextContract){
     try{
-      const payload = await ctx.request.validate(CreateUserRequest)
+      const payload = await request.validate(UserRequest)
       const user = new User()
       user.name = payload.name
       user.email = payload.email
       user.password = payload.password
       await user.save()
-      return ctx.response.send({'success': user.$isPersisted})
+      return response.send({'success': user.$isPersisted})
 
     }catch (e){
-      ctx.response.badRequest(e)
+      response.badRequest(e)
     }
 
   }
 
-  public async login(ctx: HttpContextContract){
+  public async login({request, response, auth}: HttpContextContract){
     try{
-      const payload = await ctx.request.validate(LoginRequest)
+      const payload = await request.validate(LoginRequest)
       const user = await User.findByOrFail('email', payload.email)
 
       if(!(await Hash.verify(user.password, payload.password))){
-        return ctx.response.unauthorized('Invalid Email/Password')
+        return response.unauthorized('Invalid Email/Password')
       }
 
-      const token = await ctx.auth.use('api').generate(user, {
+      const token = await auth.use('api').generate(user, {
         expiresIn: '15 days'
       })
 
-      return ctx.response.status(200).send({ 'token': token})
+      return response.status(200).send({ 'status': 'success', 'token': token})
 
     }catch (e){
-       ctx.response.badRequest(e)
+       response.badRequest(e)
     }
 
   }
