@@ -6,7 +6,7 @@ export default class CreateUserRequestValidator {
 
 
   public schema = schema.create({
-    name: schema.string([rules.minLength(4), rules.alpha()]),
+    name: schema.string([rules.minLength(4)]),
     email: schema.string([ rules.email(), rules.unique({table: 'users', column: 'email'})]),
     password: schema.string([rules.minLength(6)])
   })

@@ -13,12 +13,12 @@ export default class AuthController {
       const user = new User()
       user.name = payload.name
       user.email = payload.email
-      user.password = await Hash.make(payload.password)
+      user.password = payload.password
       await user.save()
       return ctx.response.send({'success': user.$isPersisted})
 
     }catch (e){
-      ctx.response.badRequest('Invalid Input')
+      ctx.response.badRequest(e)
     }
 
   }
@@ -26,7 +26,7 @@ export default class AuthController {
   public async login(ctx: HttpContextContract){
     try{
       const payload = await ctx.request.validate(LoginRequest)
-      const user = await User.query().where('email', payload.email).firstOrFail()
+      const user = await User.findByOrFail('email', payload.email)
 
       if(!(await Hash.verify(user.password, payload.password))){
         return ctx.response.unauthorized('Invalid Email/Password')
@@ -39,7 +39,7 @@ export default class AuthController {
       return ctx.response.status(200).send({ 'token': token})
 
     }catch (e){
-       ctx.response.badRequest('Invalid or Incorrect Email/Password')
+       ctx.response.badRequest(e)
     }
 
   }
