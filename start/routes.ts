@@ -21,5 +21,12 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.get('/', async () => {
-  return { hello: 'world' }
+  return { Author: 'Dennis R. Chibuike' }
 })
+
+Route.post('/login', 'AuthController.login')
+Route.post('/signup', 'AuthController.register')
+
+Route.group(()=> {
+
+}).prefix('/api').middleware("auth")
