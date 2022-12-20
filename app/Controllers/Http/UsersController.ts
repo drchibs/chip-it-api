@@ -15,12 +15,13 @@ export default class UsersController {
   }
 
   public async index({request, response}: HttpContextContract){
+    const query = request.qs()
     try{
       const users = await User.query()
-        .paginate(request.param('page'), request.param('limit'))
+        .paginate(query['page'], query['limit'])
       response.send({users: users.serialize()})
     }catch (e){
-      response.internalServerError(e)
+      return response.internalServerError(e)
     }
   }
 
@@ -30,7 +31,7 @@ export default class UsersController {
       const user = await User.query().where('uuid', request.param('id')).update({...payload})
       return response.send({'success': user})
     }catch (e) {
-      response.internalServerError(e)
+      return response.internalServerError(e)
     }
   }
 

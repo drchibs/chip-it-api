@@ -5,10 +5,10 @@ import User from "App/Models/User";
 import Folder from "App/Models/Folder";
 
 export default class Chip extends BaseModel {
-  @column({ isPrimary: true })
+  @column({ isPrimary: true, serializeAs: null })
   public id: number
 
-  @column()
+  @column({serializeAs: 'id'})
   public uuid: string
 
   @column()
@@ -20,8 +20,14 @@ export default class Chip extends BaseModel {
   @column()
   public clicks: number
 
+  @column({serializeAs: null})
+  userId: number
+
   @belongsTo(()=> User)
   public user: BelongsTo<typeof User>
+
+  @column({serializeAs: null})
+  folderId: number
 
   @belongsTo(()=> Folder)
   public folder: BelongsTo<typeof Folder>
@@ -38,7 +44,7 @@ export default class Chip extends BaseModel {
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: null })
   public updatedAt: DateTime
 
   @beforeCreate()

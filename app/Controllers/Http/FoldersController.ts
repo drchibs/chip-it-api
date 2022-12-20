@@ -4,6 +4,7 @@ import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
 import FolderRequest from "App/Validators/FolderRequestValidator";
 import Folder from "App/Models/Folder";
 import User from "App/Models/User";
+import Chip from "App/Models/Chip";
 
 export default class FoldersController {
   public async create({request, response}: HttpContextContract){
@@ -24,7 +25,7 @@ export default class FoldersController {
       //await user?.related('folders').save(folder)
       return response.send({folder: folder})
     }catch (e) {
-      response.badRequest(e)
+      return response.badRequest(e)
     }
 
   }
@@ -39,12 +40,13 @@ export default class FoldersController {
   }
 
   public async index({request, response}: HttpContextContract){
+    const query = request.qs()
     try{
       const folders = await Folder.query()
-        .paginate(request.param('page'), request.param('limit'))
+        .paginate(query['page'], query['limit'])
       response.send({folders: folders.serialize()})
     }catch (e){
-      response.internalServerError(e)
+      return response.internalServerError(e)
     }
   }
 
@@ -54,7 +56,7 @@ export default class FoldersController {
       const folder = await Folder.query().where('uuid', request.param('id')).update({...payload})
       return response.send({'success': folder})
     }catch (e) {
-      response.internalServerError(e)
+      return response.internalServerError(e)
     }
   }
 
@@ -62,5 +64,43 @@ export default class FoldersController {
     const folder = await Folder.findByOrFail('uuid', request.param('id'))
     await folder.delete()
     return response.noContent()
+  }
+
+  public async folderChips({request, response}: HttpContextContract){
+    const query = request.qs()
+    try{
+      const folder = await Folder.findByOrFail('uuid', request.param('id'))
+      const chips = await Chip.query().where('folder_id', folder.id)
+        .paginate(query['page'], query['limit'])
+      response.send({folder: folder.serialize(), chips: chips.serialize()})
+    }catch (e){
+      return response.internalServerError(e)
+    }
+  }
+
+  public async addChipToFolder({request, response}: HttpContextContract){
+    try{
+      const folder = await Folder.findByOrFail('uuid', request.param('folderId'))
+      const chip = await Chip.findByOrFail('uuid', request.param('chipId'))
+      await chip.related('folder').associate(folder)
+      const isPersisted = await folder.save()
+      return response.send({success: isPersisted})
+    }catch (e) {
+      return response.badRequest(e)
+    }
+
+  }
+
+  public async removeChipFromFolder({request, response}: HttpContextContract){
+    try{
+      const folder = await Folder.findByOrFail('uuid', request.param('folderId'))
+      const chip = await Chip.findByOrFail('uuid', request.param('chipId'))
+      await chip.related('folder').dissociate()
+      await folder.save()
+      return response.noContent()
+    }catch (e){
+      return response.badRequest(e)
+    }
+
   }
 }

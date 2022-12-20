@@ -1,23 +1,3 @@
-/*
-|--------------------------------------------------------------------------
-| Routes
-|--------------------------------------------------------------------------
-|
-| This file is dedicated for defining HTTP routes. A single file is enough
-| for majority of projects, however you can define routes in different
-| files and just make sure to import them inside this file. For example
-|
-| Define routes in following two files
-| ├── start/routes/cart.ts
-| ├── start/routes/customer.ts
-|
-| and then import them inside `start/routes.ts` as follows
-|
-| import './routes/cart'
-| import './routes/customer'
-|
-*/
-
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.get('/', async () => {
@@ -32,11 +12,27 @@ Route.group(()=> {
   Route.get('/users/:id', 'UsersController.show')
   Route.patch('/users/:id', 'UsersController.update')
   Route.delete('/users/:id', 'UsersController.destroy')
+  Route.get('/users/:id/chips', 'ChipsController.userChips')
+  Route.get('/users/:id/favorites', 'ChipsController.userFavoriteChips')
+
 
   Route.post('/folders', 'FoldersController.create')
   Route.get('/folders', 'FoldersController.index')
   Route.get('/folders/:id', 'FoldersController.show')
   Route.patch('/folders/:id', 'FoldersController.update')
   Route.delete('/folders/:id', 'FoldersController.destroy')
+  Route.get('/folders/:id/chips', 'FoldersController.folderChips')
+  Route.patch('/folders/:folderId/chips/:chipId', 'FoldersController.addChipToFolder')
+  Route.delete('/folders/:folderId/chips/:chipId', 'FoldersController.removeChipFromFolder')
+
+
+  Route.post('/chips', 'ChipsController.create')
+  Route.get('/chips', 'ChipsController.index')
+  Route.get('/chips/:id', 'ChipsController.show')
+//  Route.patch('/chips/:id', 'ChipsController.update')
+  Route.delete('/chips/:id', 'ChipsController.destroy')
+  Route.patch('/chips/:id/clicks', 'ChipsController.incrementClicks')
+  Route.patch('/chips/:id/toggle-favorite', 'ChipsController.toggleFavorite')
+
 
 }).prefix('/v1').middleware("auth")
