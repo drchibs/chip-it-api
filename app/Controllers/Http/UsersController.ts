@@ -1,7 +1,6 @@
 // import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import {HttpContextContract} from "@ioc:Adonis/Core/HttpContext";
-import UserRequest from "App/Validators/UserRequestValidator";
 import User from "App/Models/User";
 
 export default class UsersController {

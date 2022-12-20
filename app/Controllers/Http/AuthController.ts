@@ -5,6 +5,7 @@ import LoginRequest from "App/Validators/LoginRequestValidator";
 import UserRequest from "App/Validators/UserRequestValidator";
 import User from "App/Models/User";
 import Hash from "@ioc:Adonis/Core/Hash";
+import Folder from "App/Models/Folder";
 
 export default class AuthController {
   public async register({request, response}: HttpContextContract){
@@ -14,7 +15,13 @@ export default class AuthController {
       user.name = payload.name
       user.email = payload.email
       user.password = payload.password
-      await user.save()
+      const savedUser = await user.save()
+
+      const folder = new Folder()
+      folder.name = "Bookmarks"
+      await folder.related('user').associate(savedUser)
+      await folder.save()
+
       return response.send({'success': user.$isPersisted})
 
     }catch (e){

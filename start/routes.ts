@@ -33,4 +33,10 @@ Route.group(()=> {
   Route.patch('/users/:id', 'UsersController.update')
   Route.delete('/users/:id', 'UsersController.destroy')
 
+  Route.post('/folders', 'FoldersController.create')
+  Route.get('/folders', 'FoldersController.index')
+  Route.get('/folders/:id', 'FoldersController.show')
+  Route.patch('/folders/:id', 'FoldersController.update')
+  Route.delete('/folders/:id', 'FoldersController.destroy')
+
 }).prefix('/v1').middleware("auth")
