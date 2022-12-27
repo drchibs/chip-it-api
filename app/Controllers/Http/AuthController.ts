@@ -43,7 +43,7 @@ export default class AuthController {
         expiresIn: '15 days'
       })
 
-      return response.status(200).send({ 'status': 'success', 'token': token})
+      return response.status(200).send({ 'status': 'success', 'token': token, 'user': user.serialize()})
 
     }catch (e){
        response.badRequest(e)

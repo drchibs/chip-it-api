@@ -41,7 +41,7 @@ export default class ChipsController {
       await chip.related('folder').associate(folder)
       await chip.save()
 
-      return response.send({chip: chip})
+      return response.send({status: 'success', chip: chip})
     }catch (e) {
       return response.badRequest(e)
     }
