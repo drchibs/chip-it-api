@@ -103,4 +103,16 @@ export default class FoldersController {
     }
 
   }
+
+  public async userFolders({request, response}: HttpContextContract){
+    const query = request.qs()
+    try{
+      const user = await User.findByOrFail('uuid', request.param('id'))
+      const folders = await Folder.query().where('user_id', user.id).orderBy('created_at', 'desc')
+        .paginate(query['page'], query['limit'])
+      response.send({user: user.serialize(), folders: folders.serialize()})
+    }catch (e){
+      return response.internalServerError(e)
+    }
+  }
 }

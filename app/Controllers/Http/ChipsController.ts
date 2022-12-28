@@ -35,13 +35,14 @@ export default class ChipsController {
       chip.url = payload.url
       chip.ip = request.ip()
       chip.clicks = 1
+      chip.isFavorite = false
       chip.userAgent = <string>request.headers()["user-agent"]
       chip.metadata = metadata
       await chip.related('user').associate(user)
       await chip.related('folder').associate(folder)
       await chip.save()
 
-      return response.send({status: 'success', chip: chip})
+      return response.send({status: 'success', chip: chip.serialize()})
     }catch (e) {
       return response.badRequest(e)
     }
@@ -98,6 +99,8 @@ export default class ChipsController {
     try{
 
       const chip = await Chip.query().where('uuid', request.param('id')).firstOrFail()
+      if (chip.isFavorite == null)
+        chip.isFavorite = false
       chip.isFavorite = !chip.isFavorite
       await chip.save()
       return response.send({'success': 1})
@@ -108,9 +111,10 @@ export default class ChipsController {
 
   public async userChips({request, response}: HttpContextContract){
     const query = request.qs()
+    const sort = query['sort'] === "latest" ? "desc" : "asc"
     try{
       const user = await User.findByOrFail('uuid', request.param('id'))
-      const chips = await Chip.query().where('user_id', user.id)
+      const chips = await Chip.query().where('user_id', user.id).orderBy('created_at', sort)
         .paginate(query['page'], query['limit'])
       response.send({user: user.serialize(), chips: chips.serialize()})
     }catch (e){
@@ -120,11 +124,24 @@ export default class ChipsController {
 
   public async userFavoriteChips({request, response}: HttpContextContract){
     const query = request.qs()
+    const sort = query['sort'] === "latest" ? "desc" : "asc"
     try{
       const user = await User.findByOrFail('uuid', request.param('id'))
-      const chips = await Chip.query().where('user_id', user.id).where('is_favorite', true)
+      const chips = await Chip.query().where('user_id', user.id).where('is_favorite', true).orderBy('created_at', sort)
         .paginate(query['page'], query['limit'])
       response.send({user: user.serialize(), favorites: chips.serialize()})
+    }catch (e){
+      return response.internalServerError(e)
+    }
+  }
+
+  public async userMostVisitedChips({request, response}: HttpContextContract){
+    //const query = request.qs()
+    try{
+      const user = await User.findByOrFail('uuid', request.param('id'))
+      const chips = await Chip.query().where('user_id', user.id).orderBy('clicks', 'desc')
+        .paginate(1, 10)
+      response.send({user: user.serialize(), top_visited: chips.serialize()})
     }catch (e){
       return response.internalServerError(e)
     }

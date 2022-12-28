@@ -14,6 +14,9 @@ Route.group(()=> {
   Route.delete('/users/:id', 'UsersController.destroy')
   Route.get('/users/:id/chips', 'ChipsController.userChips')
   Route.get('/users/:id/favorites', 'ChipsController.userFavoriteChips')
+  Route.get('/users/:id/top-visited', 'ChipsController.userMostVisitedChips')
+  Route.get('/users/:id/folders', 'FoldersController.userFolders')
+
 
 
   Route.post('/folders', 'FoldersController.create')
